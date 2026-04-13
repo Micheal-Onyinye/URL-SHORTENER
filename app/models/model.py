@@ -9,3 +9,4 @@ class URL(Base):
     original_url = Column(String(2048), nullable=False)
     short_code = Column(String(10), unique=True, index=True, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    expires_at = Column(DateTime(timezone=True))
