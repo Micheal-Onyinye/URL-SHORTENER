@@ -18,18 +18,16 @@ def shorten_url(url: URLCreate, db: Session = Depends(get_db)):
 
 
 
-
-
 @router.get("/{short_code}")
 def redirect_url(short_code: str, db: Session = Depends(get_db)):
 
-    # 🔹 1. Check Redis first
+    
     cached_url = redis_client.get(short_code)
 
     if cached_url:
         return RedirectResponse(cached_url)
 
-    # 🔹 2. If not in Redis → check DB
+    
     url = db.query(URL).filter(URL.short_code == short_code).first()
 
     if url.expires_at and url.expires_at < datetime.now(timezone.utc):
@@ -38,9 +36,9 @@ def redirect_url(short_code: str, db: Session = Depends(get_db)):
     if not url:
         return {"error": "URL not found"}
 
-    # 🔹 3. Store in Redis for next time
-    redis_client.setex(short_code, 3600, url.original_url)  # Expire after 1 hour
+    
+    redis_client.setex(short_code, 3600, url.original_url)  
 
-    # 🔹 4. Redirect
+
     print("REDIRECT HIT")
     return RedirectResponse(url.original_url)
